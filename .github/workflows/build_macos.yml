@@ -27,17 +27,16 @@ jobs:
     - name: Build with PyInstaller
       run: |
         # 创建 spec 文件
-        cat > SafeClip.spec << 'EOL'
-# -*- mode: python ; coding: utf-8 -*-
+        echo '# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
 a = Analysis(
-    ['safeclip.py'],
+    ["safeclip.py"],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=['AppKit', 'Quartz', 'Foundation', 'objc', 'psutil', 'PyObjCTools.AppHelper'],
+    hiddenimports=["AppKit", "Quartz", "Foundation", "objc", "psutil", "PyObjCTools.AppHelper"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -54,7 +53,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='SafeClip',
+    name="SafeClip",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -74,26 +73,25 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='SafeClip',
+    name="SafeClip",
 )
 app = BUNDLE(
     coll,
-    name='SafeClip.app',
+    name="SafeClip.app",
     icon=None,
-    bundle_identifier='com.safeclip.app',
+    bundle_identifier="com.safeclip.app",
     info_plist={
-        'NSPrincipalClass': 'NSApplication',
-        'NSAppleScriptEnabled': False,
-        'LSUIElement': True,
-        'CFBundleName': 'SafeClip',
-        'CFBundleDisplayName': 'SafeClip',
-        'CFBundleIdentifier': 'com.safeclip.app',
-        'CFBundleVersion': '1.0.0',
-        'CFBundleShortVersionString': '1.0.0',
-        'NSHumanReadableCopyright': 'Copyright © 2025 SafeClip. All rights reserved.',
+        "NSPrincipalClass": "NSApplication",
+        "NSAppleScriptEnabled": False,
+        "LSUIElement": True,
+        "CFBundleName": "SafeClip",
+        "CFBundleDisplayName": "SafeClip",
+        "CFBundleIdentifier": "com.safeclip.app",
+        "CFBundleVersion": "1.0.0",
+        "CFBundleShortVersionString": "1.0.0",
+        "NSHumanReadableCopyright": "Copyright 2025 SafeClip. All rights reserved.",
     }
-)
-EOL
+)' > SafeClip.spec
         
         # 构建应用
         pyinstaller SafeClip.spec
