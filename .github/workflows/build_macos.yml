@@ -12,7 +12,7 @@ jobs:
     runs-on: macos-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -76,7 +76,7 @@ jobs:
         cd dist && zip -r SafeClip-macOS.zip SafeClip.app
     
     - name: Upload macOS App
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: SafeClip-macOS
         path: dist/SafeClip-macOS.zip
