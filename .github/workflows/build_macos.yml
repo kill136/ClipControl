@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   build-macos:
@@ -26,76 +26,52 @@ jobs:
     
     - name: Build with PyInstaller
       run: |
-        # 创建 spec 文件
-        echo '# -*- mode: python ; coding: utf-8 -*-
-
-block_cipher = None
-
-a = Analysis(
-    ["safeclip.py"],
-    pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=["AppKit", "Quartz", "Foundation", "objc", "psutil", "PyObjCTools.AppHelper"],
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
-)
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
-exe = EXE(
-    pyz,
-    a.scripts,
-    [],
-    exclude_binaries=True,
-    name="SafeClip",
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=True,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name="SafeClip",
-)
-app = BUNDLE(
-    coll,
-    name="SafeClip.app",
-    icon=None,
-    bundle_identifier="com.safeclip.app",
-    info_plist={
-        "NSPrincipalClass": "NSApplication",
-        "NSAppleScriptEnabled": False,
-        "LSUIElement": True,
-        "CFBundleName": "SafeClip",
-        "CFBundleDisplayName": "SafeClip",
-        "CFBundleIdentifier": "com.safeclip.app",
-        "CFBundleVersion": "1.0.0",
-        "CFBundleShortVersionString": "1.0.0",
-        "NSHumanReadableCopyright": "Copyright 2025 SafeClip. All rights reserved.",
-    }
-)' > SafeClip.spec
+        # 使用 PyInstaller 构建应用
+        pyinstaller --windowed --onedir --name SafeClip safeclip.py --hidden-import AppKit --hidden-import Quartz --hidden-import Foundation --hidden-import objc --hidden-import psutil --hidden-import PyObjCTools.AppHelper
+    
+    - name: Create Info.plist
+      run: |
+        # 创建临时 Info.plist 文件
+        echo '<?xml version="1.0" encoding="UTF-8"?>' > Info.plist
+        echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> Info.plist
+        echo '<plist version="1.0">' >> Info.plist
+        echo '<dict>' >> Info.plist
+        echo '    <key>CFBundleDevelopmentRegion</key>' >> Info.plist
+        echo '    <string>English</string>' >> Info.plist
+        echo '    <key>CFBundleDisplayName</key>' >> Info.plist
+        echo '    <string>SafeClip</string>' >> Info.plist
+        echo '    <key>CFBundleExecutable</key>' >> Info.plist
+        echo '    <string>SafeClip</string>' >> Info.plist
+        echo '    <key>CFBundleIconFile</key>' >> Info.plist
+        echo '    <string>icon-windowed.icns</string>' >> Info.plist
+        echo '    <key>CFBundleIdentifier</key>' >> Info.plist
+        echo '    <string>com.safeclip.app</string>' >> Info.plist
+        echo '    <key>CFBundleInfoDictionaryVersion</key>' >> Info.plist
+        echo '    <string>6.0</string>' >> Info.plist
+        echo '    <key>CFBundleName</key>' >> Info.plist
+        echo '    <string>SafeClip</string>' >> Info.plist
+        echo '    <key>CFBundlePackageType</key>' >> Info.plist
+        echo '    <string>APPL</string>' >> Info.plist
+        echo '    <key>CFBundleShortVersionString</key>' >> Info.plist
+        echo '    <string>1.0.0</string>' >> Info.plist
+        echo '    <key>CFBundleVersion</key>' >> Info.plist
+        echo '    <string>1.0.0</string>' >> Info.plist
+        echo '    <key>LSUIElement</key>' >> Info.plist
+        echo '    <true/>' >> Info.plist
+        echo '    <key>NSAppleScriptEnabled</key>' >> Info.plist
+        echo '    <false/>' >> Info.plist
+        echo '    <key>NSHumanReadableCopyright</key>' >> Info.plist
+        echo '    <string>Copyright 2025 SafeClip. All rights reserved.</string>' >> Info.plist
+        echo '    <key>NSPrincipalClass</key>' >> Info.plist
+        echo '    <string>NSApplication</string>' >> Info.plist
+        echo '</dict>' >> Info.plist
+        echo '</plist>' >> Info.plist
         
-        # 构建应用
-        pyinstaller SafeClip.spec
-        
+        # 复制到应用包中
+        cp Info.plist dist/SafeClip.app/Contents/Info.plist
+    
+    - name: Package App
+      run: |
         # 压缩应用为 zip 文件以便下载
         cd dist && zip -r SafeClip-macOS.zip SafeClip.app
     
